@@ -1,0 +1,110 @@
+import random as r
+
+def userinput():#make sure the user inputs a valid argument
+    print('1)Only positives (up to 10)\n2)Negatives and positives (+- 10)\n3)Coefficients of a > 1\n4)Negative coefficients of a')
+    difficulty=''
+    nums=['1','2','3','4']
+    HighestP='1'
+    while difficulty not in nums:
+        print('Please enter a number between 1 and 4')
+        difficulty=input('Pick a level of difficulty: ')
+    while True:
+        if HighestP.isdigit()==True:#checks 
+            HighestP=int(HighestP)
+            if HighestP>=2:
+                break
+        HighestP=input('What do you want the highest power to be: ')
+    return int(difficulty), HighestP
+
+def multi(p,q):
+    an = [0 for i in range(len(p)+len(q)-1)]
+    i2=-1
+    ii2=-1
+    for i in p:
+        i2+=1
+        for ii in q:
+            ii2+=1
+            an[i2+ii2] += i*ii
+        ii2=-1
+    return an
+
+def rand(a,b):
+    x=0
+    while x==0:
+        x=r.randint(a,b)
+    return x
+
+def quad(de):
+    d=de[0]
+    e=de[1]
+    if d==1:
+        a,b,x,y=1,1,1,10
+    elif d==2:
+        a,b,x,y=1,1,-10,10
+    elif d==3:
+        a,b,x,y=1,5,-10,10
+    else:
+        a,b,x,y=-5,5,-1,10
+    cur=[rand(x,y),rand(a,b)]
+    for i in range(e-1):
+        cur=multi(cur,[rand(x,y),rand(a,b)])
+    return(list(reversed(cur)))
+
+
+def answer(lst):
+    string = ""
+    for i in range(len(lst)):
+        if len(lst)- i == 2:
+            if lst[i] != 0:    
+                if lst[i] < 1:
+                    lst[i] *= -1
+                    string += " -"
+                elif lst[i] >-1:
+                    string += " +"
+                string += str(lst[i])
+                string += "x"
+                if lst[i+1] >= 1:
+                    string += " +"
+                    string += str(lst[i+1])
+                elif lst[i+1] <= -1:
+                    lst[i+1] *= -1
+                    string += " -"
+                    string += str(lst[i+1])
+            else:
+                if lst[i+1] >= 1:
+                    string += " +"
+                    string += str(lst[i+1])
+                elif lst[i+1] <= -1:
+                    lst[i+1] *= -1
+                    string += " -"
+                    string += str(lst[i+1])
+            break
+        elif i >= 1:
+            if lst[i] != 0: 
+                if lst[i] < 1:
+                    lst[i] *= -1
+                    string += " -"
+                elif lst[i] >-1:
+                    string += " +"
+            if lst[i] != 0:
+                string += str(lst[i])
+                string += "x^"
+                string += str(len(lst)-i-1)
+        else:
+            if lst[i] == 1:
+                string += "x^"
+                string += str(len(lst)-i-1)
+            elif lst[i] == -1:
+                lst[i] *= -1
+                string += " -x^"
+                string += str(len(lst)-i-1)
+            else:
+                string += str(lst[i])
+                string += "x^"
+                string += str(len(lst)-i-1)
+    print('\nPolynomial given: \n'+string+'\n')
+
+
+
+while True:
+    answer(quad(userinput()))
