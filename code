@@ -1,110 +1,288 @@
+#Team InVEDition for the win!! xD
+
 import random as r
 
-def userinput():#make sure the user inputs a valid argument
-    print('1)Only positives (up to 10)\n2)Negatives and positives (+- 10)\n3)Coefficients of a > 1\n4)Negative coefficients of a')
-    difficulty=''
-    nums=['1','2','3','4']
-    HighestP='1'
+def userinput():
+    #greets the user
+    print()
+    print()
+    print()
+    print('Hello, Welcome to the Polynomial Generator :)!\n\n')
+    #describes all the levels of difficulty for the user to choose from
+    print('1)Only positives (up to 10)\n\
+2)Negatives and positives (\u00b1 10)\n\
+3)Coefficients of a > 1\n\
+4)Negative coefficients of a\n')
+    
+    difficulty = ''
+
+    #four levels of difficulty
+    nums = ['1','2','3','4']
+
+    #stands for the degree of the polynomial 'highest power'
+    HighestP = '1'
+
+    #prompts the user to enter a number between 1 and 4
+    #and keeps on doing so until a valid integer is entered
     while difficulty not in nums:
         print('Please enter a number between 1 and 4')
         difficulty=input('Pick a level of difficulty: ')
+
+    #keeps asking the user for the degree of the polynomial until a
+    #sufficient number greater than or equal to 2 is input
     while True:
-        if HighestP.isdigit()==True:#checks 
-            HighestP=int(HighestP)
-            if HighestP>=2:
+        if HighestP.isdigit() == True:
+            HighestP = int(HighestP)
+            if HighestP >= 2:
                 break
+            
         HighestP=input('What do you want the highest power to be: ')
     return int(difficulty), HighestP
 
+
+
 def multi(p,q):
+
     an = [0 for i in range(len(p)+len(q)-1)]
-    i2=-1
-    ii2=-1
+    #set up the base list to be the correct length of the final polynomial
+    i2 = -1
+    ii2 = -1
     for i in p:
-        i2+=1
+        i2 += 1
         for ii in q:
-            ii2+=1
+            ii2 += 1
             an[i2+ii2] += i*ii
-        ii2=-1
+            #cross multiply each value in both polynomials together and add them to the correct position in the list
+        ii2 = -1
     return an
 
+
+#generates a non-zero integer in the range (a,b)
 def rand(a,b):
-    x=0
-    while x==0:
-        x=r.randint(a,b)
+    x = 0
+    while x == 0:
+        x = r.randint(a,b)
     return x
 
-def quad(de):
-    d=de[0]
-    e=de[1]
-    if d==1:
-        a,b,x,y=1,1,1,10
-    elif d==2:
-        a,b,x,y=1,1,-10,10
-    elif d==3:
-        a,b,x,y=1,5,-10,10
+def main(de):
+
+    #'d' is the difficulty user selected
+    #'e' is the degree of the polynomial
+    d = de[0]
+    e = de[1]
+
+    #every time a factor is generated, it ends up in this 2D array
+    factors = []
+
+    #sets the ranges for coefficients of factors
+    #based on the difficulty the user selected
+    if d == 1:
+        a,b,x,y = 1,1,1,10
+    elif d == 2:
+        a,b,x,y = 1,1,-10,10
+    elif d == 3:
+        a,b,x,y = 1,5,-10,10
     else:
-        a,b,x,y=-5,5,-1,10
-    cur=[rand(x,y),rand(a,b)]
+        a,b,x,y = -5,5,-1,10
+        
+    #stands for 'current' expression
+    #generates b and a in factor (ax+b)
+    cur = [rand(x,y),rand(a,b)]
+    factors.append(cur)
+
+    #first factor already generated so this is iterated e-1 times
+    #generates factor and adds to list of factors
+    #multplies new factors to update the 'current expression'
     for i in range(e-1):
-        cur=multi(cur,[rand(x,y),rand(a,b)])
-    return(list(reversed(cur)))
+        next_factor = [rand(x,y), rand(a,b)]
+        factors.append(next_factor)
+        cur = multi(cur, next_factor)
+
+    #in each factor it puts a and b the right way round
+    for i in range(len(factors)):
+        factors[i] = list(reversed(factors[i]))
+
+    print()
+    return list(reversed(cur)), factors
 
 
-def answer(lst):
-    string = ""
-    for i in range(len(lst)):
-        if len(lst)- i == 2:
-            if lst[i] != 0:    
-                if lst[i] < 1:
-                    lst[i] *= -1
-                    string += " -"
-                elif lst[i] >-1:
-                    string += " +"
-                string += str(lst[i])
-                string += "x"
-                if lst[i+1] >= 1:
-                    string += " +"
-                    string += str(lst[i+1])
-                elif lst[i+1] <= -1:
-                    lst[i+1] *= -1
-                    string += " -"
-                    string += str(lst[i+1])
+
+def list_to_factors(factors):
+    #a dictrionary containing all superscript numbers
+    superscriptdictionary = {"0" : "\u2070",
+                         "1" : "\u00b9",
+                         "2" : "\u00b2",
+                         "3" : "\u00b3",
+                         "4" : "\u2074",
+                         "5" : "\u2075",
+                         "6" : "\u2076",
+                         "7" : "\u2077",
+                         "8" : "\u2078",
+                         "9" : "\u2079"}
+    coef=1#set the origional coefficient to *1
+    for i in range(len(factors)):
+        if factors[i][0]<0:
+            #if the coefficient of x in the bracket is negative, factorise out -1
+            coef*=-1
+            factors[i]=[factors[i][0]*-1,factors[i][1]*-1]
+        if factors[i][0]==factors[i][1]:
+            #if the coefficients are equal (nx+n), change it to n(x+1)
+            coef*=factors[i][0]
+            factors[i]=[1,1]
+        else:
+            #iterates down from the highest number /2 to find the HCF of the 2 coefficients, then factorises that out
+            if max(factors[i])%2==0:
+                for ii in range(int(max(factors[i])/2),1,-1):
+                    if factors[i][0]%ii==0 and factors[i][1]%ii==0:
+                        coef*=ii
+                        factors[i]=[int(factors[i][0]/ii),int(factors[i][1]/ii)]
+                        break
             else:
-                if lst[i+1] >= 1:
-                    string += " +"
-                    string += str(lst[i+1])
-                elif lst[i+1] <= -1:
-                    lst[i+1] *= -1
-                    string += " -"
-                    string += str(lst[i+1])
-            break
-        elif i >= 1:
-            if lst[i] != 0: 
-                if lst[i] < 1:
-                    lst[i] *= -1
-                    string += " -"
-                elif lst[i] >-1:
-                    string += " +"
+                for ii in range(int((max(factors[i])/2)+0.5),1,-1):
+                    if factors[i][0]%ii==0 and factors[i][1]%ii==0:
+                        coef*=ii
+                        factors[i]=[int(factors[i][0]/ii),int(factors[i][1]/ii)]
+                        break
+    c=[]
+    d=[]
+    for i in factors:
+        if not i in d:
+            d.append(i)
+            c.append(1)
+        else:
+            c[d.index(i)]+=1
+    #counts for repeating factors to be condensed into (ax+b)^c
+    factors=list(d)
+    #stands for 'formatted factors'
+    #string holds the factorised form of the polynomial
+    form_factors = ''
+    if coef!=1 and coef!=-1:
+        form_factors+=str(coef)
+    if coef==-1:
+        form_factors+='-'
+    #special case for if the coefficient is 1 or -1
+    #remember that 'factors' is the 2D array of coefficients 
+    #and constants for each factor of the polynomial
+    for factor in factors:
+        #creates an empty string to hold a factor of the polynomial
+        #which is formatted to be displayed in a conventional manner
+        form_fact = ''
+
+        form_fact += '('
+        
+        #adds the coefficient of x normally if it is not 1 or -1
+        if str(factor[0]) != '1' and str(factor[0]) != '-1':
+            form_fact += str(factor[0])
+        #writes -x instead of -1x
+        if str(factor[0]) == '-1':
+            form_fact += '-'
+        #1x is rather just written as x
+        form_fact += 'x'
+
+        #adds the constant value (the b in (ax+b)) to the string
+        #if the constant value in the factor is negative then a
+        #'-' sign is already incorporated into the number so is unnecessary
+        if str(factor[1])[0] != '-':
+            form_fact += '+'
+        form_fact += str(factor[1])
+        
+        form_fact += ')'
+        
+        sup = list(str(c[d.index(factor)]))
+        if sup!=['1']:
+            for i in sup:
+                form_fact += superscriptdictionary[i]
+        #factor now correctly formatted so is added to the string with all factors
+        form_factors += form_fact
+
+    return form_factors
+
+
+
+def answer(lf):
+    #'lst' is the list of coefficients for each term in the polynomial
+    #remember that 'factors' is the 2D array of coefficients 
+    #and constants for each factor of this particular polynomial
+    lst = lf[0]
+    factors = lf[1]
+    string = ""
+    superscript = ""   
+    superscriptdictionary = {"0" : "\u2070",
+                             "1" : "\u00b9",
+                             "2" : "\u00b2",
+                             "3" : "\u00b3",
+                             "4" : "\u2074",
+                             "5" : "\u2075",
+                             "6" : "\u2076",
+                             "7" : "\u2077",
+                             "8" : "\u2078",
+                             "9" : "\u2079"}
+    #dictionary containing the corresponding superscript for each digit
+    for i in range(len(lst)):
+        sup = list(str(len(lst)-i-1))
+        #converts the power of x to a list(resets each iteration of i)
+        for x in range(len(sup)):
+            superscript += superscriptdictionary[sup[x]]
+            #iterates through the list and adds the corresponding unicode key to the blank superscript string
+        if i == 0: #first term of the polynomial
+            if lst[i] == 1:
+                string += "x" + superscript
+            elif lst[i] == -1:
+                string += "-x" + superscript
+            else:
+                string += str(lst[i]) + "x" + superscript    
+                #This is similar to the format used for all the other terms stated below except it doesn't give a sign to positive term as that isn't needed 
+        elif len(lst) -i-1 == 1: #second last term of the polynomial
+            if lst[i] == 1:
+                string += "+x"
+            elif lst[i] == -1:
+                string += "-x"
+            elif lst[i] < -1:
+                string += str(lst[i]) + "x"
+            elif lst[i] > 1:
+                string += "+" + str(lst[i]) + "x"
+                # this is similar to the format for all the other terms stated below, except the superscript is not added after the 'x'
+        elif len(lst) -i-1 == 0: # last term of the polynomial
+            if lst[i] > 0:
+                string += "+"
             if lst[i] != 0:
                 string += str(lst[i])
-                string += "x^"
-                string += str(len(lst)-i-1)
-        else:
+                # this checks if coefficient is signed(negative). If it isn't, then it adds '+'. If the coefficient isn't 0 then the coefficient is added 
+        else: # all the other terms
             if lst[i] == 1:
-                string += "x^"
-                string += str(len(lst)-i-1)
+                string += "+x"+ superscript
+                # if the coefficent is +1, it ignores the 1 and just adds a '+x' and the corresponding superscript
             elif lst[i] == -1:
-                lst[i] *= -1
-                string += " -x^"
-                string += str(len(lst)-i-1)
-            else:
-                string += str(lst[i])
-                string += "x^"
-                string += str(len(lst)-i-1)
+                string += "-x"+ superscript
+                # if the coefficent is -1, it ignores the 1 and just adds a '-x' and the corresponding superscript
+            elif lst[i] < -1:
+                string += str(lst[i]) + "x"+ superscript
+                # when the coefficient is less that -1, it is automatically signed by python, so we add the signed coefficeint to the answer string and 'x' with the corresponding superscript 
+            elif lst[i] > 1:
+                string += "+" + str(lst[i]) + "x"+ superscript
+                # when the coefficient is greater than 1, it is not signed so a '+' is added before the coefficient of x
+        if lst[i] != 0:
+            string += " "
+        superscript = ""
+        # resets the superscript each iteration
     print('\nPolynomial given: \n'+string+'\n')
 
+    #makes the set of factors correctly formatted
+    factors = list_to_factors(factors)
+    #waits for user input before displaying the answer
+    print('Press enter to display answer')
+    input()
+    print(factors)
+    print()
+    print()
+    print()
 
 
+#keeps the code going as much as the user wants
 while True:
-    answer(quad(userinput()))
+    answer(main(userinput()))
+    
+    print('Do you want another polynomial to factorise?')
+    restart = input('Press "n" to quit and anything else to restart. ')
+    if restart == 'n' or restart == 'N':
+        break
