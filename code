@@ -121,7 +121,7 @@ def list_to_factors(factors):
                          "9" : "\u2079"}
     coef=1#set the origional coefficient to *1
     for i in range(len(factors)):
-        if factors[i][1]<0:
+        if factors[i][0]<0:
             #if the coefficient of x in the bracket is negative, factorise out -1
             coef*=-1
             factors[i]=[factors[i][0]*-1,factors[i][1]*-1]
