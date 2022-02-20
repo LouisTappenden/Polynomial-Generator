@@ -131,14 +131,14 @@ def list_to_factors(factors):
             factors[i]=[1,1]
         else:
             #iterates down from the highest number /2 to find the HCF of the 2 coefficients, then factorises that out
-            if max(factors[i])%2==0:
-                for ii in range(int(max(factors[i])/2),1,-1):
+            if max([abs(factors[i][0]),abs(factors[i][1])])%2==0:
+                for ii in range(int(max([abs(factors[i][0]),abs(factors[i][1])])),1,-1):
                     if factors[i][0]%ii==0 and factors[i][1]%ii==0:
                         coef*=ii
                         factors[i]=[int(factors[i][0]/ii),int(factors[i][1]/ii)]
                         break
             else:
-                for ii in range(int((max(factors[i])/2)+0.5),1,-1):
+                for ii in range(int(max([abs(factors[i][0]),abs(factors[i][1])])+0.5),1,-1):
                     if factors[i][0]%ii==0 and factors[i][1]%ii==0:
                         coef*=ii
                         factors[i]=[int(factors[i][0]/ii),int(factors[i][1]/ii)]
@@ -286,3 +286,6 @@ while True:
     restart = input('Press "n" to quit and anything else to restart. ')
     if restart == 'n' or restart == 'N':
         break
+
+
+
